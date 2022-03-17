@@ -45,38 +45,17 @@ def parser():
                 if house is not None:
                     data["house"] = []
                     for candidate in house:
-                        # add the district id
-                        if candidate["district"] != None and candidate["name"] != None:
-                            #candidate["district-id"] = slugify(candidate["district"], to_lower=True)
-                            # make an ID
-                            candidate_id = str(candidate["district"]).replace(" ", "").lower() + "-" + candidate["name"].replace(" ", "").lower()
-                            candidate["candidate-id"] = candidate_id
-                            # add the party id
-                            if candidate["party"] != None:
-                                candidate["party-id"] = slugify(candidate["party"], to_lower=True)
-                            # format the boolean fields
-                            candidate["incumbent?"] = convert_xls_boolean(candidate["incumbent?"])
-                            candidate["endorsed?"] = convert_xls_boolean(candidate["endorsed?"])
-                            candidate["dropped-out?"] = convert_xls_boolean(candidate["dropped-out?"])
-                        data["house"].append(candidate)
+                        candidate = format_candidate(candidate, 'house')
+                        # add to the returnable data
+                        if candidate != None:
+                            data["house"].append(candidate)
 
                 if senate is not None:
                     data["senate"] = []
                     for candidate in senate:
-                         # add the district id
-                        if candidate["district"] != None and candidate["name"] != None:
-                            #candidate["district-id"] = slugify(candidate["district"], to_lower=True)
-                            # make an ID
-                            candidate_id = str(candidate["district"]).replace(" ", "").lower() + "-" + candidate["name"].replace(" ", "").lower()
-                            candidate["candidate-id"] = candidate_id
-                            # add the party id
-                            if candidate["party"] != None:
-                                candidate["party-id"] = slugify(candidate["party"], to_lower=True)
-                            # format the boolean fields
-                            candidate["incumbent?"] = convert_xls_boolean(candidate["incumbent?"])
-                            candidate["endorsed?"] = convert_xls_boolean(candidate["endorsed?"])
-                            candidate["dropped-out?"] = convert_xls_boolean(candidate["dropped-out?"])
-                            # add to the returnable data
+                        candidate = format_candidate(candidate, 'senate')
+                        # add to the returnable data
+                        if candidate != None:
                             data["senate"].append(candidate)
                 
                 # set metadata and send the customized json output to the api
@@ -111,6 +90,26 @@ def parser():
     else:
         output = {} # something for empty data
     return output
+
+
+def format_candidate(candidate, type):
+    # add the district id
+    if candidate["district"] != None and candidate["name"] != None:
+        #candidate["district-id"] = slugify(candidate["district"], to_lower=True)
+        # make an ID
+        candidate_id = str(candidate["district"]).replace(" ", "").lower() + "-" + candidate["name"].replace(" ", "").lower()
+        candidate["candidate-id"] = candidate_id
+        # add the party id
+        if candidate["party"] != None:
+            candidate["party-id"] = slugify(candidate["party"], to_lower=True)
+        # format the boolean fields
+        candidate["incumbent?"] = convert_xls_boolean(candidate["incumbent?"])
+        candidate["endorsed?"] = convert_xls_boolean(candidate["endorsed?"])
+        candidate["dropped-out?"] = convert_xls_boolean(candidate["dropped-out?"])
+    else:
+        candidate = None
+    return candidate
+
 
 def convert_xls_boolean(string):
     if string == None:
