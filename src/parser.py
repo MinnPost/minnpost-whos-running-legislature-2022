@@ -39,24 +39,32 @@ def parser():
             if "customized" in result_json:
                 output = json.dumps(result_json, default=str)
             else:
-                house = result_json["MN House"]
-                senate = result_json["MN Senate"]
+                house = result_json["House"]
+                senate = result_json["Senate"]
+                categories = result_json["Categories"]
+
+                if house is not None or senate is not None:
+                    data["candidates"] = []
+
+                if categories is not None:
+                    data["districts"] = []
+                    for category in categories:
+                        district = format_district(category)
+                        data["districts"].append(district)
 
                 if house is not None:
-                    data["house"] = []
                     for candidate in house:
                         candidate = format_candidate(candidate, 'house')
                         # add to the returnable data
                         if candidate != None:
-                            data["house"].append(candidate)
+                            data["candidates"].append(candidate)
 
                 if senate is not None:
-                    data["senate"] = []
                     for candidate in senate:
                         candidate = format_candidate(candidate, 'senate')
                         # add to the returnable data
                         if candidate != None:
-                            data["senate"].append(candidate)
+                            data["candidates"].append(candidate)
                 
                 # set metadata and send the customized json output to the api
                 if "generated" in result_json:
@@ -109,6 +117,16 @@ def format_candidate(candidate, type):
     else:
         candidate = None
     return candidate
+
+
+def format_district(category):
+    district = {}
+    district["district"] = category["district"]
+    if category["region"] != None:
+        district["region"] = category["region"]
+    else:
+        district["region"] = category["test-region"]
+    return district
 
 
 def convert_xls_boolean(string):
