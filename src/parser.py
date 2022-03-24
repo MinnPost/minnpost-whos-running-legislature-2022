@@ -106,6 +106,7 @@ def parser():
 def format_candidate(candidate, type):
     # add the district id
     if candidate["district"] != None and candidate["name"] != None:
+        candidate["district"] = str(candidate["district"])
         #candidate["district-id"] = slugify(candidate["district"], to_lower=True)
         # make an ID
         candidate_id = str(candidate["district"]).replace(" ", "").lower() + "-" + candidate["name"].replace(" ", "").lower()
