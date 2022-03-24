@@ -78,12 +78,15 @@ def parser():
                 
             if "customized" not in result_json or store_in_s3 == "true":
                 overwrite_url = current_app.config["OVERWRITE_API_URL"]
+                bypass_cache = "true"
+                if "customized" in output and store_in_s3 == "false":
+                    bypass_cache = False
                 params = {
                     "spreadsheet_id": spreadsheet_id,
                     "worksheet_names": worksheet_names,
                     "output": output,
                     "cache_timeout": cache_timeout,
-                    "bypass_cache": "true",
+                    "bypass_cache": bypass_cache,
                     "external_use_s3": store_in_s3
                 }
 
