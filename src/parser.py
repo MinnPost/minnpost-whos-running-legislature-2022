@@ -125,7 +125,7 @@ def format_candidate(candidate, type):
 
 def format_district(category):
     district = {}
-    district["district"] = category["district"]
+    district["district"] = str(category["district"])
     if category["region"] != None:
         district["region"] = category["region"]
     else:
