@@ -5,6 +5,8 @@ import requests
 from flask import current_app, request
 from slugify import slugify
 
+region_field = "test-region"
+
 def parser():
     output = {}
     data = {}
@@ -36,7 +38,7 @@ def parser():
                 result_json = result.json()
     
         if result_json is not None:
-            if "customized" in result_json:
+            if "customized" in result_json and bypass_cache == "false":
                 output = json.dumps(result_json, default=str)
             else:
                 house = result_json["House"]
@@ -46,22 +48,16 @@ def parser():
                 if house is not None or senate is not None:
                     data["candidates"] = []
 
-                if categories is not None:
-                    data["districts"] = []
-                    for category in categories:
-                        district = format_district(category)
-                        data["districts"].append(district)
-
                 if house is not None:
                     for candidate in house:
-                        candidate = format_candidate(candidate, 'house')
+                        candidate = format_candidate(candidate, 'house', categories)
                         # add to the returnable data
                         if candidate != None:
                             data["candidates"].append(candidate)
 
                 if senate is not None:
                     for candidate in senate:
-                        candidate = format_candidate(candidate, 'senate')
+                        candidate = format_candidate(candidate, 'senate', categories)
                         # add to the returnable data
                         if candidate != None:
                             data["candidates"].append(candidate)
@@ -74,13 +70,13 @@ def parser():
                     data["cache_timeout"] = data["customized"] + timedelta(seconds=int(cache_timeout))
                 else:
                     data["cache_timeout"] = 0
+                if bypass_cache == "false" and ("customized" not in result_json or store_in_s3 == "true"):
+                    bypass_cache = "true"
+                    if "customized" in data and store_in_s3 == "false":
+                        bypass_cache = "false"
                 output = json.dumps(data, default=str)
-                
             if "customized" not in result_json or store_in_s3 == "true":
                 overwrite_url = current_app.config["OVERWRITE_API_URL"]
-                bypass_cache = "true"
-                if "customized" in output and store_in_s3 == "false":
-                    bypass_cache = False
                 params = {
                     "spreadsheet_id": spreadsheet_id,
                     "worksheet_names": worksheet_names,
@@ -103,10 +99,19 @@ def parser():
     return output
 
 
-def format_candidate(candidate, type):
+def format_candidate(candidate, chamber, categories):
     # add the district id
     if candidate["district"] != None and candidate["name"] != None:
         candidate["district"] = str(candidate["district"])
+        candidate["chamber"] = chamber
+        for category in categories:
+            if str(category["district"]) == str(candidate["district"]):
+                region = category[region_field]
+                break
+        else:
+            region = None
+        if region != None:
+            candidate["region"] = region
         #candidate["district-id"] = slugify(candidate["district"], to_lower=True)
         # make an ID
         candidate_id = str(candidate["district"]).replace(" ", "").lower() + "-" + candidate["name"].replace(" ", "").lower()
@@ -121,16 +126,6 @@ def format_candidate(candidate, type):
     else:
         candidate = None
     return candidate
-
-
-def format_district(category):
-    district = {}
-    district["district"] = str(category["district"])
-    if category["region"] != None:
-        district["region"] = category["region"]
-    else:
-        district["region"] = category["test-region"]
-    return district
 
 
 def convert_xls_boolean(string):
