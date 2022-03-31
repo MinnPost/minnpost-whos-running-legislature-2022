@@ -5,7 +5,7 @@ import requests
 from flask import current_app, request
 from slugify import slugify
 
-region_field = "test-region"
+region_field = "region"
 
 def parser():
     output = {}
@@ -112,6 +112,7 @@ def format_candidate(candidate, chamber, categories):
             region = None
         if region != None:
             candidate["region"] = region
+            candidate["region-id"] = slugify(candidate["region"], to_lower=True)
         #candidate["district-id"] = slugify(candidate["district"], to_lower=True)
         # make an ID
         candidate_id = str(candidate["district"]).replace(" ", "").lower() + "-" + candidate["name"].replace(" ", "").lower()
