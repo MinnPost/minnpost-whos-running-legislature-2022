@@ -134,9 +134,9 @@ def convert_xls_boolean(string):
         value = False
     else:
         string = string.lower()
-        if string == "yes" or string == "true":
+        if string == "yes" or string == "true" or string == "y":
             value = True
-        elif string == "no" or string == "false":
+        elif string == "no" or string == "false" or string == "n":
             value = False
         else:
             value = bool(string)
