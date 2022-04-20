@@ -22,7 +22,7 @@ To access the Google Sheets to JSON API you'll need to have two configuration va
 1. Create a `.env` file based on the repository's `.env-example` file in the root of your project.
 1. Run `pipenv install`.
 1. Run `pipenv shell`
-1. Run `flask run --host=0.0.0.0`. This creates a basic endpoint server at http://0.0.0.0:5000.
+1. Run `flask run --host=0.0.0.0`. This creates a basic endpoint server at http://0.0.0.0:5000. If you need to run it on another port, for example `5001`, use `flask run --host=0.0.0.0 --port=5001`.
 
 ### Production setup and deployment
 
